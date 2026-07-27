@@ -5,16 +5,16 @@ module.exports = {
     extend: {
       colors: {
         nyx: {
-          bg: "#0a0710",
-          panel: "#140f1e",
-          panel2: "#1c1526",
+          bg: "#12080e",
+          panel: "#1c1016",
+          panel2: "#241620",
           pink: "#ff2d95",
           pink2: "#ff6ec7",
           pink3: "#ff96d4",
           violet: "#7c3aed",
-          line: "#2a2135",
+          line: "#3a2430",
           text: "#f1e9f7",
-          muted: "#a996b8"
+          muted: "#b799a8"
         }
       },
       fontFamily: {

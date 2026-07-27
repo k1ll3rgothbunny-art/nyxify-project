@@ -151,8 +151,7 @@ const QUEUE_STATUS_WORDS: Record<string, string> = {
   PAID: "paid",
   IN_PROGRESS: "in progress",
   WAITING_ON_CUSTOMER: "waiting",
-  REVISION_REQUESTED: "revision requested",
-  COMPLETED: "done"
+  REVISION_REQUESTED: "revision requested"
 };
 const SERVICE_LABELS: Record<string, string> = {
   CLOTHING: "Clothing",
@@ -168,11 +167,10 @@ export async function refreshOrderQueue() {
 
   const { prisma } = await import("./prisma");
 
-  // ARCHIVED orders drop off the board entirely; everything else (including
-  // COMPLETED) stays visible, struck through, so the queue reads as a
-  // running log rather than just an active worklist.
+  // Completed and archived orders drop off the board entirely once done —
+  // this is a live worklist of what's still in flight, not a history log.
   const orders = await prisma.order.findMany({
-    where: { status: { not: "ARCHIVED" } },
+    where: { status: { in: Object.keys(QUEUE_STATUS_WORDS) as any } },
     include: { customer: true },
     orderBy: { createdAt: "desc" },
     take: 25
@@ -182,15 +180,14 @@ export async function refreshOrderQueue() {
 
   const lines = chronological.map(function (o) {
     const label = SERVICE_LABELS[o.service] || o.service;
-    const line = label + " ~ " + o.customer.username + " ~ " + (QUEUE_STATUS_WORDS[o.status] || o.status);
-    return o.status === "COMPLETED" ? "- ~~" + line + "~~" : "- " + line;
+    return "- " + label + " ~ " + o.customer.username + " ~ " + (QUEUE_STATUS_WORDS[o.status] || o.status);
   });
 
   const siteUrl = process.env.NEXTAUTH_URL || "";
 
   const embed = {
     title: "♡ **__Nyxify's Que__** ♡",
-    description: lines.length === 0 ? "No orders yet." : lines.join("\n"),
+    description: lines.length === 0 ? "No active orders right now." : lines.join("\n"),
     color: BRAND_COLOR,
     thumbnail: siteUrl ? { url: siteUrl + "/images/favicon.png" } : undefined,
     image: siteUrl ? { url: siteUrl + "/images/banner.jpg" } : undefined,

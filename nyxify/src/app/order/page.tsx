@@ -9,14 +9,13 @@ export const dynamic = "force-dynamic";
 const SERVICES = ["CLOTHING", "CHAINS", "FACES", "TATTOOS", "OTHER"];
 
 const SERVICE_TEMPLATES: Record<string, string> = {
-  CLOTHING: `Please choose which font and color you would like for your concept (If you would like more than one color/font make sure to mention that)
-   https://www.dafont.com/  Font   https://htmlcolorcodes.com/  Color (Please send the hex)
+  CLOTHING: `   https://www.dafont.com/  Font
+https://htmlcolorcodes.com/  Color (Please send the hex)
 
-Clothing piece one
-
-outfit name ~
-colors u want ~
-details u want ~`,
+Colors u want ~
+Fonts u want
+Details u want ~
+How many clothing items ~`,
   CHAINS: `Please choose which font and color you would like for your concept (If you would like more than one color/font make sure to mention that)
    https://www.dafont.com/  Font   https://htmlcolorcodes.com/  Color (Please send the hex)
 

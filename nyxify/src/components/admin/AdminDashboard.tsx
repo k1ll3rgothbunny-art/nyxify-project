@@ -3,12 +3,14 @@ import { useState } from "react";
 import OverviewTab from "./OverviewTab";
 import OrdersTab from "./OrdersTab";
 import ShowcasesTab from "./ShowcasesTab";
+import ReviewsTab from "./ReviewsTab";
 import AnalyticsTab from "./AnalyticsTab";
 
 const TABS = [
   { key: "overview", label: "Overview" },
   { key: "orders", label: "Orders" },
   { key: "showcases", label: "Showcases" },
+  { key: "reviews", label: "Reviews" },
   { key: "analytics", label: "Analytics" }
 ] as const;
 
@@ -41,6 +43,7 @@ export default function AdminDashboard() {
         {active === "overview" && <OverviewTab onViewAllOrders={() => setActive("orders")} />}
         {active === "orders" && <OrdersTab />}
         {active === "showcases" && <ShowcasesTab />}
+        {active === "reviews" && <ReviewsTab />}
         {active === "analytics" && <AnalyticsTab />}
       </div>
     </div>
