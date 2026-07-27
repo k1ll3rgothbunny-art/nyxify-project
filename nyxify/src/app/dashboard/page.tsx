@@ -65,13 +65,23 @@ export default async function DashboardPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <StatusBadge status={o.status} />
                 {o.status === "AWAITING_PAYMENT" && o.quoteCents && (
-                  <div className="flex flex-wrap items-center gap-3">
-                    <PayPalButton orderId={o.id} payDeposit={!!o.depositCents} />
-                    <CashAppPayButton
-                      orderId={o.id}
-                      amountCents={o.depositCents ?? o.quoteCents}
-                      payDeposit={!!o.depositCents}
-                    />
+                  <div className="flex flex-col items-start gap-2">
+                    <div className="flex items-center gap-2">
+                      <CashAppPayButton
+                        orderId={o.id}
+                        amountCents={o.depositCents ?? o.quoteCents}
+                        payDeposit={!!o.depositCents}
+                      />
+                      <span className="rounded-full bg-nyx-pink/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-nyx-pink2">
+                        Lowest fees
+                      </span>
+                    </div>
+                    <details className="text-xs text-nyx-muted">
+                      <summary className="cursor-pointer select-none hover:text-white">Pay with PayPal instead</summary>
+                      <div className="mt-2">
+                        <PayPalButton orderId={o.id} payDeposit={!!o.depositCents} />
+                      </div>
+                    </details>
                   </div>
                 )}
               </div>
