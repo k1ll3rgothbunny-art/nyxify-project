@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import OrderSimilarButton from "@/components/OrderSimilarButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function ShowcaseDetailPage({ params }: { params: { id: string } }) {
   const showcase = await prisma.showcase.findUnique({ where: { id: params.id } });
   if (!showcase) notFound();
