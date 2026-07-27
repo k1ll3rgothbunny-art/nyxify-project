@@ -6,6 +6,7 @@ const STATUSES = [
   "AWAITING_QUOTE", "AWAITING_PAYMENT", "PAID", "IN_PROGRESS",
   "WAITING_ON_CUSTOMER", "REVISION_REQUESTED", "COMPLETED", "ARCHIVED"
 ];
+const DONE_STATUSES = ["COMPLETED", "ARCHIVED"];
 
 type Order = {
   id: string;
@@ -20,6 +21,7 @@ export default function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [view, setView] = useState<"active" | "done">("active");
 
   useEffect(() => {
     fetch("/api/admin/orders")
@@ -52,9 +54,32 @@ export default function OrdersTab() {
     setDeletingId(null);
   }
 
+  const activeOrders = orders.filter((o) => !DONE_STATUSES.includes(o.status));
+  const doneOrders = orders.filter((o) => DONE_STATUSES.includes(o.status));
+  const visibleOrders = view === "active" ? activeOrders : doneOrders;
+
   return (
     <div>
       <h2 className="nyx-heading text-xl font-bold text-white">Orders</h2>
+
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={() => setView("active")}
+          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+            view === "active" ? "bg-nyx-pink text-white" : "border border-nyx-line text-nyx-muted hover:text-white"
+          }`}
+        >
+          Active ({activeOrders.length})
+        </button>
+        <button
+          onClick={() => setView("done")}
+          className={`rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
+            view === "done" ? "bg-nyx-pink text-white" : "border border-nyx-line text-nyx-muted hover:text-white"
+          }`}
+        >
+          Completed & Archived ({doneOrders.length})
+        </button>
+      </div>
 
       {loading && <p className="mt-6 text-sm text-nyx-muted">Loading…</p>}
 
@@ -71,7 +96,7 @@ export default function OrdersTab() {
             </tr>
           </thead>
           <tbody>
-            {orders.map((o) => (
+            {visibleOrders.map((o) => (
               <tr key={o.id} className="nyx-card text-sm">
                 <td className="px-3 py-3 text-white">{o.customer.username}</td>
                 <td className="px-3 py-3 text-nyx-muted">{o.service}</td>
@@ -111,6 +136,13 @@ export default function OrdersTab() {
                 </td>
               </tr>
             ))}
+            {visibleOrders.length === 0 && !loading && (
+              <tr>
+                <td colSpan={6} className="px-3 py-6 text-center text-sm text-nyx-muted">
+                  {view === "active" ? "No active orders." : "Nothing completed or archived yet."}
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
