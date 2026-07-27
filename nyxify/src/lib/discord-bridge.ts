@@ -132,6 +132,27 @@ export function deleteShowcaseMessage(messageId: string) {
   return discordFetch("/channels/" + PORTFOLIO_CHANNEL_ID + "/messages/" + messageId, { method: "DELETE" });
 }
 
+export function postReviewToDiscord(opts: { username: string; rating: number; body: string; service: string }) {
+  const channelId = process.env.DISCORD_REVIEWS_CHANNEL_ID;
+  if (!channelId) return Promise.resolve(null);
+
+  const stars = "★".repeat(opts.rating) + "☆".repeat(5 - opts.rating);
+
+  return discordFetch("/channels/" + channelId + "/messages", {
+    method: "POST",
+    body: JSON.stringify({
+      embeds: [
+        {
+          title: "New review — " + opts.service,
+          description: stars + "\n\n" + opts.body,
+          footer: { text: "— " + opts.username },
+          color: BRAND_COLOR
+        }
+      ]
+    })
+  });
+}
+
 export async function dmStatusUpdate(opts: { discordId: string; orderId: string; status: string; message: string }) {
   const dm = await discordFetch("/users/@me/channels", {
     method: "POST",

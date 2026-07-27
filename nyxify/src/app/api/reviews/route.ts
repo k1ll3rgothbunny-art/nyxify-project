@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { postReviewToDiscord } from "@/lib/discord-bridge";
 
 export async function GET() {
   const reviews = await prisma.review.findMany({
@@ -37,6 +38,14 @@ export async function POST(req: NextRequest) {
       body: reviewBody,
       screenshots: screenshots ?? []
     }
+  });
+
+  const customer = await prisma.user.findUnique({ where: { id: userId } });
+  await postReviewToDiscord({
+    username: customer?.username ?? "a customer",
+    rating,
+    body: reviewBody,
+    service: order.service
   });
 
   return NextResponse.json(review, { status: 201 });
