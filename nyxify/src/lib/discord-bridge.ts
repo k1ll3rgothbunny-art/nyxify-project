@@ -48,22 +48,22 @@ export async function openOrderTicket(opts: { discordId: string; orderId: string
   });
   if (!channel) return null;
 
-  const referenceEmbeds = (opts.referenceImageUrls || []).slice(0, 9).map(function (url) {
+  const referenceEmbeds: any[] = (opts.referenceImageUrls || []).slice(0, 9).map(function (url) {
     return { image: { url }, color: BRAND_COLOR };
   });
+
+  const mainEmbed = {
+    title: "New order — " + opts.service,
+    description: opts.referenceNote || "No notes provided.",
+    fields: [{ name: "Order ID", value: opts.orderId }],
+    color: BRAND_COLOR
+  };
 
   await discordFetch("/channels/" + channel.id + "/messages", {
     method: "POST",
     body: JSON.stringify({
       content: "<@" + opts.discordId + "> welcome! I'll send your quote here.",
-      embeds: [
-        {
-          title: "New order — " + opts.service,
-          description: opts.referenceNote || "No notes provided.",
-          fields: [{ name: "Order ID", value: opts.orderId }],
-          color: BRAND_COLOR
-        }
-      ].concat(referenceEmbeds)
+      embeds: [mainEmbed].concat(referenceEmbeds)
     })
   });
 
