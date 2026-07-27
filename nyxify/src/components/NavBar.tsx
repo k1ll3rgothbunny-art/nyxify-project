@@ -24,7 +24,7 @@ export default function NavBar() {
         </nav>
         <div className="flex items-center gap-3">
           <a
-            href="https://discord.gg/your-invite"
+            href="https://discord.gg/F7wXr4tMdR"
             className="hidden rounded-full border border-nyx-line px-4 py-2 text-sm text-nyx-muted hover:border-nyx-pink hover:text-white transition-colors sm:inline-block"
           >
             Join Discord

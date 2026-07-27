@@ -64,7 +64,7 @@ export default async function HomePage() {
             Start an Order
           </Link>
           <a
-            href="https://discord.gg/your-invite"
+            href="https://discord.gg/F7wXr4tMdR"
             className="rounded-full border border-nyx-line px-8 py-3 font-semibold text-nyx-muted hover:border-nyx-pink hover:text-white transition-colors"
           >
             Join Discord
