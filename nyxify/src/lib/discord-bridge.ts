@@ -103,6 +103,13 @@ export async function closeOrderTicket(channelId: string, customerDiscordId: str
   });
 }
 
+// For orders deleted outright (customer changed their mind, duplicate,
+// placed by mistake) — unlike closeOrderTicket, this removes the channel
+// entirely rather than archiving it, since there's nothing worth keeping.
+export async function deleteTicketChannel(channelId: string) {
+  await discordFetch("/channels/" + channelId, { method: "DELETE" });
+}
+
 export async function postShowcaseToDiscord(opts: { title: string; description: string; imageUrl: string; showcaseUrl: string }) {
   const message = await discordFetch("/channels/" + PORTFOLIO_CHANNEL_ID + "/messages", {
     method: "POST",

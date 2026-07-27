@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { dmStatusUpdate, refreshOrderQueue, closeOrderTicket } from "@/lib/discord-bridge";
+import { dmStatusUpdate, refreshOrderQueue, closeOrderTicket, deleteTicketChannel } from "@/lib/discord-bridge";
 
 const STATUS_MESSAGES: Record<string, string> = {
   AWAITING_PAYMENT: "Your quote is ready — head to your dashboard to pay.",
@@ -74,4 +74,28 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   return NextResponse.json(order);
+}
+
+// Admin-only: permanently deletes an order — for cancelled/duplicate/false
+// tickets, not real orders someone wants a record of. Also removes the
+// associated Discord ticket channel entirely (unlike closeOrderTicket, which
+// archives it) since there's nothing worth keeping for a cancelled order.
+export async function DELETE(_req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  const role = session ? (session.user as any).role : null;
+  if (!session || role !== "ADMIN") {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const order = await prisma.order.findUnique({ where: { id: params.id } });
+  if (!order) return NextResponse.json({ error: "Not found" }, { status: 404 });
+
+  if (order.discordTicketChannelId) {
+    await deleteTicketChannel(order.discordTicketChannelId);
+  }
+
+  await prisma.order.delete({ where: { id: params.id } });
+  await refreshOrderQueue();
+
+  return NextResponse.json({ ok: true });
 }

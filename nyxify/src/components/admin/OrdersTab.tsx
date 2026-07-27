@@ -19,6 +19,7 @@ type Order = {
 export default function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/orders")
@@ -39,6 +40,18 @@ export default function OrdersTab() {
     }
   }
 
+  async function deleteOrder(id: string, customerName: string) {
+    if (!confirm(`Delete this order from ${customerName}? This also deletes its Discord ticket channel and can't be undone.`)) {
+      return;
+    }
+    setDeletingId(id);
+    const res = await fetch(`/api/orders/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setOrders((prev) => prev.filter((o) => o.id !== id));
+    }
+    setDeletingId(null);
+  }
+
   return (
     <div>
       <h2 className="nyx-heading text-xl font-bold text-white">Orders</h2>
@@ -46,7 +59,7 @@ export default function OrdersTab() {
       {loading && <p className="mt-6 text-sm text-nyx-muted">Loading…</p>}
 
       <div className="mt-6 overflow-x-auto">
-        <table className="w-full min-w-[700px] border-separate border-spacing-y-2">
+        <table className="w-full min-w-[820px] border-separate border-spacing-y-2">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-nyx-muted">
               <th className="px-3">Customer</th>
@@ -54,6 +67,7 @@ export default function OrdersTab() {
               <th className="px-3">Status</th>
               <th className="px-3">Quote ($)</th>
               <th className="px-3">Update status</th>
+              <th className="px-3"></th>
             </tr>
           </thead>
           <tbody>
@@ -85,6 +99,15 @@ export default function OrdersTab() {
                       <option key={s} value={s}>{s.replace(/_/g, " ")}</option>
                     ))}
                   </select>
+                </td>
+                <td className="px-3 py-3">
+                  <button
+                    onClick={() => deleteOrder(o.id, o.customer.username)}
+                    disabled={deletingId === o.id}
+                    className="rounded-full border border-red-500/40 px-3 py-1.5 text-xs font-semibold text-red-400 hover:bg-red-500/10 disabled:opacity-50"
+                  >
+                    {deletingId === o.id ? "Deleting…" : "Delete"}
+                  </button>
                 </td>
               </tr>
             ))}
