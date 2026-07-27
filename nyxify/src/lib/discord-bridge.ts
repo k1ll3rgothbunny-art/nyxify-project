@@ -110,8 +110,20 @@ export async function deleteTicketChannel(channelId: string) {
   await discordFetch("/channels/" + channelId, { method: "DELETE" });
 }
 
-export async function postShowcaseToDiscord(opts: { title: string; description: string; imageUrl: string; showcaseUrl: string }) {
-  const message = await discordFetch("/channels/" + PORTFOLIO_CHANNEL_ID + "/messages", {
+// Each service category posts to its own showcase channel; anything else
+// (or an unset category-specific channel) falls back to the main portfolio
+// channel.
+function showcaseChannelFor(category: string) {
+  if (category === "CHAINS" && process.env.DISCORD_CHAINS_CHANNEL_ID) return process.env.DISCORD_CHAINS_CHANNEL_ID;
+  if (category === "FACES" && process.env.DISCORD_FACES_CHANNEL_ID) return process.env.DISCORD_FACES_CHANNEL_ID;
+  if (category === "TATTOOS" && process.env.DISCORD_TATTOOS_CHANNEL_ID) return process.env.DISCORD_TATTOOS_CHANNEL_ID;
+  return PORTFOLIO_CHANNEL_ID;
+}
+
+export async function postShowcaseToDiscord(opts: { title: string; description: string; imageUrl: string; showcaseUrl: string; category: string }) {
+  const channelId = showcaseChannelFor(opts.category);
+
+  const message = await discordFetch("/channels/" + channelId + "/messages", {
     method: "POST",
     body: JSON.stringify({
       embeds: [
@@ -125,11 +137,11 @@ export async function postShowcaseToDiscord(opts: { title: string; description: 
       ]
     })
   });
-  return message;
+  return message ? { ...message, channelId } : null;
 }
 
-export function deleteShowcaseMessage(messageId: string) {
-  return discordFetch("/channels/" + PORTFOLIO_CHANNEL_ID + "/messages/" + messageId, { method: "DELETE" });
+export function deleteShowcaseMessage(messageId: string, channelId?: string | null) {
+  return discordFetch("/channels/" + (channelId || PORTFOLIO_CHANNEL_ID) + "/messages/" + messageId, { method: "DELETE" });
 }
 
 export function postReviewToDiscord(opts: { username: string; rating: number; body: string; service: string }) {

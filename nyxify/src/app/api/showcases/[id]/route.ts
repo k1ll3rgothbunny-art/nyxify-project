@@ -15,7 +15,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: { id: stri
   if (!showcase) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
   if (showcase.discordMessageId) {
-    await deleteShowcaseMessage(showcase.discordMessageId);
+    await deleteShowcaseMessage(showcase.discordMessageId, showcase.discordChannelId);
   }
 
   await prisma.showcase.delete({ where: { id: params.id } });

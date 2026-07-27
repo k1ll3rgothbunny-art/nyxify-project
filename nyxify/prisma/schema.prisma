@@ -118,6 +118,7 @@ model Showcase {
   completedAt DateTime
   discordPosted Boolean       @default(false)
   discordMessageId String?
+  discordChannelId String?
   createdAt   DateTime        @default(now())
 }
 

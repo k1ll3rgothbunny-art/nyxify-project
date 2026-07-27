@@ -31,11 +31,15 @@ export async function POST(req: NextRequest) {
     title: showcase.title,
     description: showcase.description,
     imageUrl: showcase.images[0] ?? "",
-    showcaseUrl: `${process.env.NEXTAUTH_URL}/portfolio/${showcase.id}`
+    showcaseUrl: `${process.env.NEXTAUTH_URL}/portfolio/${showcase.id}`,
+    category: showcase.category
   });
 
   if (posted?.id) {
-    await prisma.showcase.update({ where: { id: showcase.id }, data: { discordPosted: true, discordMessageId: posted.id } });
+    await prisma.showcase.update({
+      where: { id: showcase.id },
+      data: { discordPosted: true, discordMessageId: posted.id, discordChannelId: posted.channelId }
+    });
   }
 
   return NextResponse.json(showcase, { status: 201 });
