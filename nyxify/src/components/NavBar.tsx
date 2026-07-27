@@ -3,6 +3,7 @@ import Link from "next/link";
 const links = [
   { href: "/", label: "Home" },
   { href: "/portfolio", label: "Portfolio" },
+  { href: "/reviews", label: "Reviews" },
   { href: "/order", label: "Start an Order" },
   { href: "/dashboard", label: "My Dashboard" }
 ];
@@ -30,7 +31,7 @@ export default function NavBar() {
           </a>
           <Link
             href="/order"
-            className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-violet px-5 py-2 text-sm font-semibold text-white shadow-glow hover:opacity-90 transition-opacity"
+            className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-5 py-2 text-sm font-semibold text-white shadow-glow hover:opacity-90 transition-opacity"
           >
             Start an Order
           </Link>

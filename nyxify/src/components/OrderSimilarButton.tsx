@@ -34,7 +34,7 @@ export default function OrderSimilarButton({ showcaseId, showcaseTitle }: { show
       <button
         onClick={handleClick}
         disabled={loading}
-        className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-violet px-8 py-3 text-lg font-semibold text-white shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
+        className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-8 py-3 text-lg font-semibold text-white shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
       >
         {loading ? "Opening ticket…" : "Order Something Similar"}
       </button>

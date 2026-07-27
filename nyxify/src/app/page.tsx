@@ -34,8 +34,18 @@ export default async function HomePage() {
 
   return (
     <div>
+      {/* Banner */}
+      <div className="mx-auto max-w-6xl px-6 pt-8">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/images/banner.jpg"
+          alt="Nyxify — Built Different, Made to Stand Out"
+          className="w-full rounded-2xl border border-nyx-line shadow-glow"
+        />
+      </div>
+
       {/* Hero */}
-      <section className="relative overflow-hidden px-6 pt-24 pb-20 text-center">
+      <section className="relative overflow-hidden px-6 pt-12 pb-20 text-center">
         <p className="mb-4 inline-block rounded-full border border-nyx-line px-4 py-1 text-xs uppercase tracking-widest text-nyx-pink2">
           Custom FiveM Assets
         </p>
@@ -49,7 +59,7 @@ export default async function HomePage() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
           <Link
             href="/order"
-            className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-violet px-8 py-3 font-semibold text-white shadow-glow hover:opacity-90 transition-opacity"
+            className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-8 py-3 font-semibold text-white shadow-glow hover:opacity-90 transition-opacity"
           >
             Start an Order
           </Link>

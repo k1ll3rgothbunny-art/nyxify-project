@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { dmStatusUpdate, refreshOrderQueue } from "@/lib/discord-bridge";
+import { dmStatusUpdate, refreshOrderQueue, closeOrderTicket } from "@/lib/discord-bridge";
 
 const STATUS_MESSAGES: Record<string, string> = {
   AWAITING_PAYMENT: "Your quote is ready — head to your dashboard to pay.",
@@ -67,6 +67,10 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       message: STATUS_MESSAGES[body.status] ?? `Order status updated to ${body.status}.`
     });
     await refreshOrderQueue();
+
+    if (body.status === "COMPLETED" && order.discordTicketChannelId) {
+      await closeOrderTicket(order.discordTicketChannelId, order.customer.discordId);
+    }
   }
 
   return NextResponse.json(order);

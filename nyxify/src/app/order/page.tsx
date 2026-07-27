@@ -8,11 +8,51 @@ export const dynamic = "force-dynamic";
 
 const SERVICES = ["CLOTHING", "CHAINS", "FACES", "TATTOOS", "OTHER"];
 
+const SERVICE_TEMPLATES: Record<string, string> = {
+  CLOTHING: `Please choose which font and color you would like for your concept (If you would like more than one color/font make sure to mention that)
+   https://www.dafont.com/  Font   https://htmlcolorcodes.com/  Color (Please send the hex)
+
+Clothing piece one
+
+outfit name ~
+colors u want ~
+details u want ~`,
+  CHAINS: `Please choose which font and color you would like for your concept (If you would like more than one color/font make sure to mention that)
+   https://www.dafont.com/  Font   https://htmlcolorcodes.com/  Color (Please send the hex)
+
+Chain piece one
+
+chain name ~
+metal/color u want ~
+pendant/details u want ~`,
+  FACES: `Please send a clear reference image of the face style you want.
+
+Face preset one
+
+face name ~
+skin tone/details ~
+specific features u want changed ~`,
+  TATTOOS: `Please choose which font and color you would like for your concept (If you would like more than one color/font make sure to mention that)
+   https://www.dafont.com/  Font   https://htmlcolorcodes.com/  Color (Please send the hex)
+
+Tattoo piece one
+
+tattoo name ~
+placement u want ~
+details u want ~`,
+  OTHER: `Tell me exactly what you're looking for, including any references, colors, or fonts.
+
+Item one
+
+item name ~
+details u want ~`
+};
+
 export default function OrderPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const [service, setService] = useState("CLOTHING");
-  const [notes, setNotes] = useState("");
+  const [notes, setNotes] = useState(SERVICE_TEMPLATES.CLOTHING);
   const [files, setFiles] = useState<FileList | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +108,14 @@ export default function OrderPage() {
               <button
                 type="button"
                 key={s}
-                onClick={() => setService(s)}
+                onClick={() => {
+                  setService(s);
+                  // Only swap in the new starter template if the customer
+                  // hasn't started customizing yet — never overwrite real
+                  // typed answers just because they clicked a different tab.
+                  const isUntouched = notes.trim() === "" || Object.values(SERVICE_TEMPLATES).includes(notes);
+                  if (isUntouched) setNotes(SERVICE_TEMPLATES[s]);
+                }}
                 className={`rounded-xl border px-3 py-3 text-sm font-medium transition-colors ${
                   service === s
                     ? "border-nyx-pink bg-nyx-pink/10 text-white"
@@ -114,7 +161,7 @@ export default function OrderPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-full bg-gradient-to-r from-nyx-pink to-nyx-violet px-6 py-3 font-semibold text-white shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="w-full rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-6 py-3 font-semibold text-white shadow-glow transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {submitting ? "Submitting…" : "Submit order request"}
         </button>

@@ -22,7 +22,7 @@ export default function RegisterDiscordCommandButton() {
       <button
         onClick={handleClick}
         disabled={status === "loading"}
-        className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-violet px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
+        className="rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-5 py-2 text-sm font-semibold text-white hover:opacity-90 disabled:opacity-50"
       >
         {status === "loading" ? "Registering…" : status === "done" ? "Registered ✅" : "Register /deliver command"}
       </button>

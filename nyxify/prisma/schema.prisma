@@ -117,6 +117,7 @@ model Showcase {
   images      String[]
   completedAt DateTime
   discordPosted Boolean       @default(false)
+  discordMessageId String?
   createdAt   DateTime        @default(now())
 }
 

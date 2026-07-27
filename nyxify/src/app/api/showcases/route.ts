@@ -34,8 +34,8 @@ export async function POST(req: NextRequest) {
     showcaseUrl: `${process.env.NEXTAUTH_URL}/portfolio/${showcase.id}`
   });
 
-  if (posted) {
-    await prisma.showcase.update({ where: { id: showcase.id }, data: { discordPosted: true } });
+  if (posted?.id) {
+    await prisma.showcase.update({ where: { id: showcase.id }, data: { discordPosted: true, discordMessageId: posted.id } });
   }
 
   return NextResponse.json(showcase, { status: 201 });

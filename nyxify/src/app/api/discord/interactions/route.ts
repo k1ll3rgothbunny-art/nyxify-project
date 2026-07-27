@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import nacl from "tweetnacl";
 import { prisma } from "@/lib/prisma";
 import { putObject } from "@/lib/s3";
-import { dmStatusUpdate, refreshOrderQueue } from "@/lib/discord-bridge";
+import { dmStatusUpdate, refreshOrderQueue, closeOrderTicket } from "@/lib/discord-bridge";
 import { randomUUID } from "crypto";
 
 /**
@@ -109,6 +109,10 @@ async function handleDeliverCommand(interaction: any) {
       message: "Your files are ready in your Vault."
     });
     await refreshOrderQueue();
+
+    if (order.discordTicketChannelId) {
+      await closeOrderTicket(order.discordTicketChannelId, order.customer.discordId);
+    }
 
     return NextResponse.json({
       type: 4,

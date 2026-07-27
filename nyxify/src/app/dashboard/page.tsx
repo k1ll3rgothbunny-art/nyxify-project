@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import StatusBadge from "@/components/StatusBadge";
 import PayPalButton from "@/components/PayPalButton";
 import CashAppPayButton from "@/components/CashAppPayButton";
+import OrderReviewPrompt from "@/components/OrderReviewPrompt";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -15,7 +16,7 @@ export default async function DashboardPage() {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
-      orders: { orderBy: { createdAt: "desc" } },
+      orders: { orderBy: { createdAt: "desc" }, include: { review: true } },
       notifications: { orderBy: { createdAt: "desc" }, take: 5 }
     }
   });
@@ -84,12 +85,15 @@ export default async function DashboardPage() {
         <div className="mt-4 space-y-3">
           {past.length === 0 && <p className="text-sm text-nyx-muted">No past orders yet.</p>}
           {past.map((o) => (
-            <div key={o.id} className="nyx-card flex flex-wrap items-center justify-between gap-3 p-5">
-              <div>
-                <p className="font-semibold text-white">{o.service.charAt(0) + o.service.slice(1).toLowerCase()}</p>
-                <p className="text-xs text-nyx-muted">Placed {o.createdAt.toDateString()}</p>
+            <div key={o.id} className="nyx-card p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="font-semibold text-white">{o.service.charAt(0) + o.service.slice(1).toLowerCase()}</p>
+                  <p className="text-xs text-nyx-muted">Placed {o.createdAt.toDateString()}</p>
+                </div>
+                <StatusBadge status={o.status} />
               </div>
-              <StatusBadge status={o.status} />
+              {o.status === "COMPLETED" && <OrderReviewPrompt orderId={o.id} hasReview={!!o.review} />}
             </div>
           ))}
         </div>

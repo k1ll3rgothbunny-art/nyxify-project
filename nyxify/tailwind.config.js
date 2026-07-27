@@ -10,6 +10,7 @@ module.exports = {
           panel2: "#1c1526",
           pink: "#ff2d95",
           pink2: "#ff6ec7",
+          pink3: "#ff96d4",
           violet: "#7c3aed",
           line: "#2a2135",
           text: "#f1e9f7",

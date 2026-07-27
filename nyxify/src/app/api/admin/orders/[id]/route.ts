@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { getSignedUploadUrl } from "@/lib/s3";
-import { dmStatusUpdate, refreshOrderQueue } from "@/lib/discord-bridge";
+import { dmStatusUpdate, refreshOrderQueue, closeOrderTicket } from "@/lib/discord-bridge";
 import { randomUUID } from "crypto";
 
 // Delivers completed files: uploads to private storage, drops them into the
@@ -48,6 +48,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     message: "Your files are ready in your Vault."
   });
   await refreshOrderQueue();
+
+  if (order.discordTicketChannelId) {
+    await closeOrderTicket(order.discordTicketChannelId, order.customer.discordId);
+  }
 
   return NextResponse.json({ uploadTargets });
 }

@@ -16,7 +16,7 @@ type Order = {
   createdAt: string;
 };
 
-export default function AdminOrdersPage() {
+export default function OrdersTab() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -40,12 +40,12 @@ export default function AdminOrdersPage() {
   }
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="nyx-heading text-3xl font-bold text-white">Orders</h1>
+    <div>
+      <h2 className="nyx-heading text-xl font-bold text-white">Orders</h2>
 
       {loading && <p className="mt-6 text-sm text-nyx-muted">Loading…</p>}
 
-      <div className="mt-8 overflow-x-auto">
+      <div className="mt-6 overflow-x-auto">
         <table className="w-full min-w-[700px] border-separate border-spacing-y-2">
           <thead>
             <tr className="text-left text-xs uppercase tracking-wide text-nyx-muted">

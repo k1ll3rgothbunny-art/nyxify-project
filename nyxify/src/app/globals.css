@@ -8,8 +8,9 @@
 
 body {
   background:
-    radial-gradient(1200px 600px at 20% -10%, rgba(255,45,149,0.12), transparent 60%),
-    radial-gradient(900px 500px at 100% 0%, rgba(124,58,237,0.14), transparent 55%),
+    radial-gradient(1300px 700px at 20% -10%, rgba(255,45,149,0.22), transparent 60%),
+    radial-gradient(1000px 600px at 100% 10%, rgba(255,150,212,0.16), transparent 55%),
+    radial-gradient(700px 400px at 100% 0%, rgba(124,58,237,0.08), transparent 55%),
     #0a0710;
   color: #f1e9f7;
   font-family: 'Inter', sans-serif;
@@ -21,7 +22,7 @@ body {
 }
 
 .nyx-gradient-text {
-  background: linear-gradient(90deg, #ff2d95, #ff6ec7 45%, #7c3aed);
+  background: linear-gradient(90deg, #ff2d95, #ff96d4 55%, #ff6ec7);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;

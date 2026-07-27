@@ -11,14 +11,14 @@ type Analytics = {
   bestSellingServices: { service: string; count: number }[];
 };
 
-export default function AdminAnalyticsPage() {
+export default function AnalyticsTab() {
   const [data, setData] = useState<Analytics | null>(null);
 
   useEffect(() => {
     fetch("/api/admin/analytics").then((r) => r.json()).then(setData);
   }, []);
 
-  if (!data) return <div className="mx-auto max-w-6xl px-6 py-16 text-nyx-muted">Loading…</div>;
+  if (!data) return <div className="text-nyx-muted">Loading…</div>;
 
   const cards = [
     { label: "Total revenue", value: `$${(data.revenueCents / 100).toFixed(2)}` },
@@ -30,9 +30,9 @@ export default function AdminAnalyticsPage() {
   ];
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16">
-      <h1 className="nyx-heading text-3xl font-bold text-white">Analytics</h1>
-      <div className="mt-8 grid grid-cols-2 gap-4 lg:grid-cols-3">
+    <div>
+      <h2 className="nyx-heading text-xl font-bold text-white">Analytics</h2>
+      <div className="mt-6 grid grid-cols-2 gap-4 lg:grid-cols-3">
         {cards.map((c) => (
           <div key={c.label} className="nyx-card p-5">
             <p className="text-xs uppercase tracking-wide text-nyx-muted">{c.label}</p>
@@ -42,7 +42,7 @@ export default function AdminAnalyticsPage() {
       </div>
 
       <section className="mt-10">
-        <h2 className="nyx-heading text-xl font-bold text-white">Best-selling services</h2>
+        <h3 className="nyx-heading text-lg font-bold text-white">Best-selling services</h3>
         <div className="mt-4 space-y-2">
           {data.bestSellingServices.map((s) => (
             <div key={s.service} className="nyx-card flex items-center justify-between p-4">
