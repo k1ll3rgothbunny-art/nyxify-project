@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background:
+    radial-gradient(1200px 600px at 20% -10%, rgba(255,45,149,0.12), transparent 60%),
+    radial-gradient(900px 500px at 100% 0%, rgba(124,58,237,0.14), transparent 55%),
+    #0a0710;
+  color: #f1e9f7;
+  font-family: 'Inter', sans-serif;
+}
+
+.nyx-heading {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.nyx-gradient-text {
+  background: linear-gradient(90deg, #ff2d95, #ff6ec7 45%, #7c3aed);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.nyx-card {
+  background: #140f1e;
+  border: 1px solid #2a2135;
+  border-radius: 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+}

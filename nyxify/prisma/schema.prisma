@@ -1,0 +1,152 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  AWAITING_QUOTE
+  AWAITING_PAYMENT
+  PAID
+  IN_PROGRESS
+  WAITING_ON_CUSTOMER
+  REVISION_REQUESTED
+  COMPLETED
+  ARCHIVED
+}
+
+enum ServiceCategory {
+  CLOTHING
+  CHAINS
+  FACES
+  TATTOOS
+  OTHER
+}
+
+enum PaymentMethod {
+  PAYPAL
+  CASHAPP
+}
+
+model User {
+  id            String    @id @default(cuid())
+  discordId     String    @unique
+  username      String
+  discriminator String?
+  avatar        String?
+  email         String?
+  role          Role      @default(CUSTOMER)
+  totalSpentCents Int     @default(0)
+  vipTier       String?   // e.g. "Bronze", "Silver", "Gold"
+  createdAt     DateTime  @default(now())
+
+  orders        Order[]
+  reviews       Review[]
+  notifications Notification[]
+  vaultItems    VaultItem[]
+}
+
+model Order {
+  id             String       @id @default(cuid())
+  customerId     String
+  customer       User         @relation(fields: [customerId], references: [id])
+  service        ServiceCategory
+  status         OrderStatus  @default(AWAITING_QUOTE)
+  notes          String?
+  referenceFiles OrderFile[]
+  quoteCents     Int?
+  depositCents   Int?
+  totalPaidCents Int          @default(0)
+  discordTicketChannelId String?
+  couponCode     String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  payments       Payment[]
+  vaultItems     VaultItem[]
+  review         Review?
+}
+
+model OrderFile {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id])
+  url       String
+  kind      String   // "reference" | "delivery"
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id            String        @id @default(cuid())
+  orderId       String
+  order         Order         @relation(fields: [orderId], references: [id])
+  method        PaymentMethod
+  amountCents   Int
+  isDeposit     Boolean       @default(false)
+  providerRef   String?       // Stripe payment_intent id / PayPal order id / Cash App ref
+  status        String        // "pending" | "succeeded" | "failed" | "refunded"
+  createdAt     DateTime      @default(now())
+}
+
+model VaultItem {
+  id          String   @id @default(cuid())
+  customerId  String
+  customer    User     @relation(fields: [customerId], references: [id])
+  orderId     String
+  order       Order    @relation(fields: [orderId], references: [id])
+  fileUrl     String   // stored as S3 object key, signed on request
+  previewUrl  String?
+  fileName    String
+  fileType    String
+  createdAt   DateTime @default(now())
+}
+
+model Showcase {
+  id          String          @id @default(cuid())
+  title       String
+  description String
+  category    ServiceCategory
+  images      String[]
+  completedAt DateTime
+  discordPosted Boolean       @default(false)
+  createdAt   DateTime        @default(now())
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  orderId     String   @unique
+  order       Order    @relation(fields: [orderId], references: [id])
+  customerId  String
+  customer    User     @relation(fields: [customerId], references: [id])
+  rating      Int
+  body        String
+  screenshots String[]
+  featured    Boolean  @default(false)
+  createdAt   DateTime @default(now())
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  type       String   // "quote_ready" | "payment_requested" | ...
+  message    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+}
+
+model Coupon {
+  code          String   @id
+  percentOff    Int?
+  amountOffCents Int?
+  active        Boolean  @default(true)
+  expiresAt     DateTime?
+}
