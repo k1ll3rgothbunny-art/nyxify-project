@@ -13,6 +13,11 @@ const STAFF_ROLE_ID = process.env.DISCORD_STAFF_ROLE_ID;
 const BRAND_COLOR = 0xff96d4;
 const PERM_VIEW_CHANNEL = "1024";
 const PERM_SEND_MESSAGES = "2048";
+// VIEW_CHANNEL + SEND_MESSAGES + EMBED_LINKS + ATTACH_FILES + READ_MESSAGE_HISTORY —
+// what the customer needs to fully participate in their own ticket (chat,
+// paste links, and upload reference/progress images) without being able to
+// touch anything else in the server.
+const PERM_CUSTOMER_TICKET_ACCESS = "117760";
 
 async function discordFetch(path: string, init?: RequestInit) {
   const res = await fetch(API + path, {
@@ -33,7 +38,7 @@ async function discordFetch(path: string, init?: RequestInit) {
 export async function openOrderTicket(opts: { discordId: string; orderId: string; service: string; referenceNote?: string; referenceImageUrls?: string[] }) {
   const permissionOverwrites = [
     { id: GUILD_ID, type: 0, deny: PERM_VIEW_CHANNEL },
-    { id: opts.discordId, type: 1, allow: PERM_VIEW_CHANNEL }
+    { id: opts.discordId, type: 1, allow: PERM_CUSTOMER_TICKET_ACCESS }
   ];
   if (STAFF_ROLE_ID) permissionOverwrites.push({ id: STAFF_ROLE_ID, type: 0, allow: PERM_VIEW_CHANNEL });
 
