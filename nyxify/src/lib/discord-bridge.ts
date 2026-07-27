@@ -145,14 +145,21 @@ export async function dmStatusUpdate(opts: { discordId: string; orderId: string;
   });
 }
 
-const QUEUE_STATUS_ORDER = ["AWAITING_QUOTE", "AWAITING_PAYMENT", "PAID", "IN_PROGRESS", "WAITING_ON_CUSTOMER", "REVISION_REQUESTED"];
-const QUEUE_STATUS_LABELS: Record<string, string> = {
-  AWAITING_QUOTE: "📝 Awaiting Quote",
-  AWAITING_PAYMENT: "💳 Awaiting Payment",
-  PAID: "✅ Paid",
-  IN_PROGRESS: "🔨 In Progress",
-  WAITING_ON_CUSTOMER: "⏳ Waiting on You",
-  REVISION_REQUESTED: "✏️ Revision Requested"
+const QUEUE_STATUS_WORDS: Record<string, string> = {
+  AWAITING_QUOTE: "awaiting quote",
+  AWAITING_PAYMENT: "awaiting payment",
+  PAID: "paid",
+  IN_PROGRESS: "in progress",
+  WAITING_ON_CUSTOMER: "waiting",
+  REVISION_REQUESTED: "revision requested",
+  COMPLETED: "done"
+};
+const SERVICE_LABELS: Record<string, string> = {
+  CLOTHING: "Clothing",
+  CHAINS: "Chain",
+  FACES: "Face",
+  TATTOOS: "Tattoo",
+  OTHER: "Custom"
 };
 
 export async function refreshOrderQueue() {
@@ -161,27 +168,32 @@ export async function refreshOrderQueue() {
 
   const { prisma } = await import("./prisma");
 
+  // ARCHIVED orders drop off the board entirely; everything else (including
+  // COMPLETED) stays visible, struck through, so the queue reads as a
+  // running log rather than just an active worklist.
   const orders = await prisma.order.findMany({
-    where: { status: { in: QUEUE_STATUS_ORDER as any } },
+    where: { status: { not: "ARCHIVED" } },
     include: { customer: true },
+    orderBy: { createdAt: "desc" },
     take: 25
   });
 
-  const sorted = orders.sort(function (a, b) {
-    return QUEUE_STATUS_ORDER.indexOf(a.status) - QUEUE_STATUS_ORDER.indexOf(b.status) || a.createdAt.getTime() - b.createdAt.getTime();
+  const chronological = orders.slice().reverse();
+
+  const lines = chronological.map(function (o) {
+    const label = SERVICE_LABELS[o.service] || o.service;
+    const line = label + " ~ " + o.customer.username + " ~ " + (QUEUE_STATUS_WORDS[o.status] || o.status);
+    return o.status === "COMPLETED" ? "- ~~" + line + "~~" : "- " + line;
   });
 
+  const siteUrl = process.env.NEXTAUTH_URL || "";
+
   const embed = {
-    title: "📋 Order Queue",
-    description: sorted.length === 0 ? "No active orders right now." : undefined,
-    fields: sorted.map(function (o) {
-      return {
-        name: "#" + o.id.slice(-6) + " — " + o.service,
-        value: o.customer.username + " · " + (QUEUE_STATUS_LABELS[o.status] || o.status),
-        inline: false
-      };
-    }),
+    title: "♡ **__Nyxify's Que__** ♡",
+    description: lines.length === 0 ? "No orders yet." : lines.join("\n"),
     color: BRAND_COLOR,
+    thumbnail: siteUrl ? { url: siteUrl + "/images/favicon.png" } : undefined,
+    image: siteUrl ? { url: siteUrl + "/images/banner.jpg" } : undefined,
     footer: { text: "Live — updates automatically" },
     timestamp: new Date().toISOString()
   };
