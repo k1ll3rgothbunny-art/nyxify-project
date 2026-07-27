@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { dmStatusUpdate } from "@/lib/discord-bridge";
+import { dmStatusUpdate, refreshOrderQueue } from "@/lib/discord-bridge";
 
 const STATUS_MESSAGES: Record<string, string> = {
   AWAITING_PAYMENT: "Your quote is ready — head to your dashboard to pay.",
@@ -66,6 +66,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       status: body.status,
       message: STATUS_MESSAGES[body.status] ?? `Order status updated to ${body.status}.`
     });
+    await refreshOrderQueue();
   }
 
   return NextResponse.json(order);

@@ -4,6 +4,13 @@ import ServiceCard from "@/components/ServiceCard";
 import ShowcaseCard from "@/components/ShowcaseCard";
 import ReviewStars from "@/components/ReviewStars";
 
+// Without this, Next.js treats this page as static — built once at deploy
+// time — since nothing on it looks "dynamic" to it by default. That meant
+// new showcases/reviews posted after deploy never showed up here even
+// though they were saved correctly. This makes it check the database fresh
+// on every visit instead.
+export const dynamic = "force-dynamic";
+
 const SERVICES = [
   { title: "Clothing", description: "Custom outfits and textures built to spec for your character." },
   { title: "Chains", description: "Custom 3D jewelry pieces, from subtle to statement." },

@@ -1,5 +1,5 @@
 import { prisma } from "./prisma";
-import { notifyTicketPaid, dmStatusUpdate } from "./discord-bridge";
+import { notifyTicketPaid, dmStatusUpdate, refreshOrderQueue } from "./discord-bridge";
 
 // Both PayPal (capture) and Cash App Pay (Square) hit this once money is
 // actually confirmed. Keeping it in one place means the order-status,
@@ -50,6 +50,8 @@ export async function markOrderPaid(opts: {
     status: "PAID",
     message: "Payment received — your order is moving to In Progress."
   });
+
+  await refreshOrderQueue();
 
   return order;
 }

@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { openOrderTicket } from "@/lib/discord-bridge";
-import { getSignedUploadUrl } from "@/lib/s3";
+import { openOrderTicket, refreshOrderQueue } from "@/lib/discord-bridge";
+import { putObject, getSignedDownloadUrl } from "@/lib/s3";
 import { randomUUID } from "crypto";
 
 const VALID_SERVICES = ["CLOTHING", "CHAINS", "FACES", "TATTOOS", "OTHER"];
@@ -46,27 +46,39 @@ export async function POST(req: NextRequest) {
     }
   });
 
-  // Reference files are uploaded straight to private storage; we only
-  // persist the object key, never a public URL, on the order record.
+  // Reference files are uploaded straight to private storage server-side —
+  // no browser CORS setup needed. We keep the object key on the order record
+  // and only ever hand out short-lived signed URLs (like the ones we send to
+  // Discord below), never a permanent public link.
+  const referenceUrls: string[] = [];
   for (const file of referenceFiles) {
-    if (!(file instanceof File)) continue;
+    if (!(file instanceof File) || file.size === 0) continue;
     const key = `references/${order.id}/${randomUUID()}-${file.name}`;
-    await getSignedUploadUrl(key, file.type || "application/octet-stream");
+    const buffer = Buffer.from(await file.arrayBuffer());
+    await putObject(key, buffer, file.type || "application/octet-stream");
     await prisma.orderFile.create({
       data: { orderId: order.id, url: key, kind: "reference" }
     });
+    // Signed for an hour — long enough for staff to view it in the ticket
+    // before it expires, without ever exposing a permanent public link.
+    if (file.type.startsWith("image/")) {
+      referenceUrls.push(await getSignedDownloadUrl(key, 3600));
+    }
   }
 
   const ticket = await openOrderTicket({
     discordId,
     orderId: order.id,
     service,
-    referenceNote: notes
+    referenceNote: notes,
+    referenceImageUrls: referenceUrls
   });
 
   if (ticket?.channelId) {
     await prisma.order.update({ where: { id: order.id }, data: { discordTicketChannelId: ticket.channelId } });
   }
+
+  await refreshOrderQueue();
 
   return NextResponse.json(order, { status: 201 });
 }

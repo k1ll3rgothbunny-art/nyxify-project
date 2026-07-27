@@ -4,6 +4,7 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import StatusBadge from "@/components/StatusBadge";
+import RegisterDiscordCommandButton from "@/components/RegisterDiscordCommandButton";
 
 export default async function AdminHomePage() {
   const session = await getServerSession(authOptions);
@@ -25,6 +26,17 @@ export default async function AdminHomePage() {
           <Link href="/admin/showcases" className="hover:underline">Showcases</Link>
           <Link href="/admin/analytics" className="hover:underline">Analytics</Link>
         </nav>
+      </div>
+
+      <div className="nyx-card mt-8 flex flex-wrap items-center justify-between gap-4 p-5">
+        <div>
+          <p className="font-semibold text-white">Discord /deliver command</p>
+          <p className="text-sm text-nyx-muted">
+            Run once so you can drop completed files right into a ticket channel with{" "}
+            <code className="text-nyx-pink2">/deliver</code>.
+          </p>
+        </div>
+        <RegisterDiscordCommandButton />
       </div>
 
       <section className="mt-10">

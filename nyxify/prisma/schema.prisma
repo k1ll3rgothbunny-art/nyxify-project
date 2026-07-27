@@ -150,3 +150,11 @@ model Coupon {
   active        Boolean  @default(true)
   expiresAt     DateTime?
 }
+
+// Tracks the single "queue board" message in Discord so status updates edit
+// it in place instead of posting a new message every time.
+model DiscordQueueMessage {
+  id        String   @id @default("singleton")
+  messageId String?
+  updatedAt DateTime @updatedAt
+}

@@ -1,6 +1,8 @@
 import { prisma } from "@/lib/prisma";
 import ShowcaseCard from "@/components/ShowcaseCard";
 
+export const dynamic = "force-dynamic";
+
 export default async function PortfolioPage() {
   const showcases = await prisma.showcase.findMany({ orderBy: { completedAt: "desc" } }).catch(() => []);
 

@@ -20,7 +20,8 @@
     "@aws-sdk/client-s3": "3.616.0",
     "@aws-sdk/s3-request-presigner": "3.616.0",
     "zod": "3.23.8",
-    "date-fns": "3.6.0"
+    "date-fns": "3.6.0",
+    "tweetnacl": "1.0.3"
   },
   "devDependencies": {
     "typescript": "5.5.4",
