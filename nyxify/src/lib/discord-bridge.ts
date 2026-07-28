@@ -144,6 +144,23 @@ export function deleteShowcaseMessage(messageId: string, channelId?: string | nu
   return discordFetch("/channels/" + (channelId || PORTFOLIO_CHANNEL_ID) + "/messages/" + messageId, { method: "DELETE" });
 }
 
+export function editShowcaseMessage(opts: { messageId: string; channelId?: string | null; title: string; description: string; imageUrl: string; showcaseUrl: string }) {
+  return discordFetch("/channels/" + (opts.channelId || PORTFOLIO_CHANNEL_ID) + "/messages/" + opts.messageId, {
+    method: "PATCH",
+    body: JSON.stringify({
+      embeds: [
+        {
+          title: opts.title,
+          description: opts.description,
+          url: opts.showcaseUrl,
+          image: opts.imageUrl ? { url: opts.imageUrl } : undefined,
+          color: BRAND_COLOR
+        }
+      ]
+    })
+  });
+}
+
 export function postReviewToDiscord(opts: { username: string; rating: number; body: string; service: string }) {
   const channelId = process.env.DISCORD_REVIEWS_CHANNEL_ID;
   if (!channelId) return Promise.resolve(null);

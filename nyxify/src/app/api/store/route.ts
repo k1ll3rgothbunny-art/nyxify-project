@@ -23,7 +23,8 @@ export async function POST(req: NextRequest) {
     data: {
       title: body.title,
       description: body.description,
-      priceCents: Math.round(Number(body.price) * 100),
+      priceMinCents: Math.round(Number(body.priceMin) * 100),
+      priceMaxCents: body.priceMax ? Math.round(Number(body.priceMax) * 100) : null,
       image: body.image,
       category: body.category
     }

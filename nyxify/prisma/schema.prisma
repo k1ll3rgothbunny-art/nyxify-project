@@ -123,14 +123,15 @@ model Showcase {
 }
 
 model StoreItem {
-  id          String          @id @default(cuid())
-  title       String
-  description String
-  priceCents  Int
-  image       String
-  category    ServiceCategory
-  active      Boolean         @default(true)
-  createdAt   DateTime        @default(now())
+  id             String          @id @default(cuid())
+  title          String
+  description    String
+  priceMinCents  Int
+  priceMaxCents  Int?
+  image          String
+  category       ServiceCategory
+  active         Boolean         @default(true)
+  createdAt      DateTime        @default(now())
 }
 
 model Review {

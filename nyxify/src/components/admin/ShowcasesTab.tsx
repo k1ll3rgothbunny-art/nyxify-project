@@ -6,17 +6,18 @@ const CATEGORIES = ["CLOTHING", "CHAINS", "FACES", "TATTOOS", "OTHER"];
 type Showcase = {
   id: string;
   title: string;
+  description: string;
   category: string;
   images: string[];
   completedAt: string;
 };
 
+const emptyForm = { title: "", description: "", category: "CLOTHING", imageUrls: "" };
+
 export default function ShowcasesTab() {
   const [showcases, setShowcases] = useState<Showcase[]>([]);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("CLOTHING");
-  const [imageUrls, setImageUrls] = useState("");
+  const [form, setForm] = useState(emptyForm);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [status, setStatus] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
@@ -30,25 +31,51 @@ export default function ShowcasesTab() {
     loadShowcases();
   }, []);
 
+  function startEdit(s: Showcase) {
+    setEditingId(s.id);
+    setForm({
+      title: s.title,
+      description: s.description,
+      category: s.category,
+      imageUrls: s.images.join("\n")
+    });
+  }
+
+  function cancelEdit() {
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    setStatus("Posting…");
-    const res = await fetch("/api/showcases", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        title,
-        description,
-        category,
-        images: imageUrls.split("\n").map((s) => s.trim()).filter(Boolean),
-        completedAt: new Date().toISOString()
-      })
-    });
-    setStatus(res.ok ? "Posted — synced to the Discord portfolio channel." : "Something went wrong.");
+    setStatus(editingId ? "Saving…" : "Posting…");
+    const payload = {
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      images: form.imageUrls.split("\n").map((s) => s.trim()).filter(Boolean),
+      completedAt: new Date().toISOString()
+    };
+    const res = editingId
+      ? await fetch(`/api/showcases/${editingId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        })
+      : await fetch("/api/showcases", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+    setStatus(
+      res.ok
+        ? editingId
+          ? "Saved — the live Discord post was updated too."
+          : "Posted — synced to the Discord portfolio channel."
+        : "Something went wrong."
+    );
     if (res.ok) {
-      setTitle("");
-      setDescription("");
-      setImageUrls("");
+      cancelEdit();
       loadShowcases();
     }
   }
@@ -58,6 +85,7 @@ export default function ShowcasesTab() {
     const res = await fetch(`/api/showcases/${id}`, { method: "DELETE" });
     if (res.ok) {
       setShowcases((prev) => prev.filter((s) => s.id !== id));
+      if (editingId === id) cancelEdit();
     }
     setDeletingId(null);
   }
@@ -68,27 +96,33 @@ export default function ShowcasesTab() {
 
       <div className="mt-6 grid grid-cols-1 gap-8 lg:grid-cols-2">
         <div>
-          <h3 className="text-sm font-semibold uppercase tracking-wide text-nyx-muted">Upload new</h3>
-          <p className="mt-1 text-xs text-nyx-muted">Posting here also sends the preview to your Discord Portfolio channel automatically.</p>
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-nyx-muted">
+            {editingId ? "Edit showcase" : "Upload new"}
+          </h3>
+          <p className="mt-1 text-xs text-nyx-muted">
+            {editingId
+              ? "Saving updates the live Discord post to match."
+              : "Posting here also sends the preview to your Discord Portfolio channel automatically."}
+          </p>
           <form onSubmit={handleSubmit} className="mt-4 space-y-4">
             <input
               required
               placeholder="Title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={form.title}
+              onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
               className="w-full rounded-xl border border-nyx-line bg-nyx-panel px-4 py-3 text-white"
             />
             <textarea
               required
               rows={3}
               placeholder="Description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
               className="w-full rounded-xl border border-nyx-line bg-nyx-panel px-4 py-3 text-white"
             />
             <select
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              value={form.category}
+              onChange={(e) => setForm((f) => ({ ...f, category: e.target.value }))}
               className="w-full rounded-xl border border-nyx-line bg-nyx-panel px-4 py-3 text-white"
             >
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
@@ -97,16 +131,27 @@ export default function ShowcasesTab() {
               required
               rows={3}
               placeholder="Image URLs, one per line (already uploaded to storage)"
-              value={imageUrls}
-              onChange={(e) => setImageUrls(e.target.value)}
+              value={form.imageUrls}
+              onChange={(e) => setForm((f) => ({ ...f, imageUrls: e.target.value }))}
               className="w-full rounded-xl border border-nyx-line bg-nyx-panel px-4 py-3 text-white"
             />
-            <button
-              type="submit"
-              className="w-full rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-6 py-3 font-semibold text-white shadow-glow hover:opacity-90"
-            >
-              Post showcase
-            </button>
+            <div className="flex gap-3">
+              <button
+                type="submit"
+                className="flex-1 rounded-full bg-gradient-to-r from-nyx-pink to-nyx-pink2 px-6 py-3 font-semibold text-white shadow-glow hover:opacity-90"
+              >
+                {editingId ? "Save changes" : "Post showcase"}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={cancelEdit}
+                  className="rounded-full border border-nyx-line px-6 py-3 font-semibold text-nyx-muted hover:text-white"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
             {status && <p className="text-sm text-nyx-muted">{status}</p>}
           </form>
         </div>
@@ -125,6 +170,12 @@ export default function ShowcasesTab() {
                   <p className="truncate font-semibold text-white">{s.title}</p>
                   <p className="text-xs text-nyx-muted">{s.category}</p>
                 </div>
+                <button
+                  onClick={() => startEdit(s)}
+                  className="rounded-full border border-nyx-line px-3 py-1.5 text-xs font-semibold text-white hover:border-nyx-pink"
+                >
+                  Edit
+                </button>
                 <button
                   onClick={() => handleDelete(s.id)}
                   disabled={deletingId === s.id}
