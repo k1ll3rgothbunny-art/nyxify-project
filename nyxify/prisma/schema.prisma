@@ -126,7 +126,7 @@ model StoreItem {
   id             String          @id @default(cuid())
   title          String
   description    String
-  priceMinCents  Int
+  priceMinCents  Int             @default(0)
   priceMaxCents  Int?
   image          String
   category       ServiceCategory
