@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useSession, signIn } from "next-auth/react";
 import { formatPriceRange } from "@/lib/format";
+import { SERVICE_TEMPLATES } from "@/lib/orderTemplates";
 
 export default function OrderNowButton({
   itemId, title, description, priceMinCents, priceMaxCents, category, image
@@ -25,12 +26,16 @@ export default function OrderNowButton({
     }
     setLoading(true);
     try {
+      const template = SERVICE_TEMPLATES[category];
+      const referenceNote =
+        `Store order: "${title}" — ${formatPriceRange(priceMinCents, priceMaxCents)}\n\n${description}` +
+        (template ? `\n\n---\n\n${template}` : "");
+
       const res = await fetch("/api/discord/ticket", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          referenceNote:
-            `Store order: "${title}" — ${formatPriceRange(priceMinCents, priceMaxCents)}\n\n${description}`,
+          referenceNote,
           category,
           referenceImageUrl: image,
           showcaseId: itemId
