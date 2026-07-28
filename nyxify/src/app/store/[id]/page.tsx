@@ -26,6 +26,7 @@ export default async function StoreItemDetailPage({ params }: { params: { id: st
         <OrderNowButton
           itemId={item.id}
           title={item.title}
+          description={item.description}
           priceMinCents={item.priceMinCents}
           priceMaxCents={item.priceMaxCents}
           category={item.category}

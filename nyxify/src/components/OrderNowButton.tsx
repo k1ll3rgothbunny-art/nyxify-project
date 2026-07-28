@@ -4,8 +4,16 @@ import { useSession, signIn } from "next-auth/react";
 import { formatPriceRange } from "@/lib/format";
 
 export default function OrderNowButton({
-  itemId, title, priceMinCents, priceMaxCents, category, image
-}: { itemId: string; title: string; priceMinCents: number; priceMaxCents: number | null; category: string; image: string }) {
+  itemId, title, description, priceMinCents, priceMaxCents, category, image
+}: {
+  itemId: string;
+  title: string;
+  description: string;
+  priceMinCents: number;
+  priceMaxCents: number | null;
+  category: string;
+  image: string;
+}) {
   const { data: session } = useSession();
   const [loading, setLoading] = useState(false);
   const [ticketUrl, setTicketUrl] = useState<string | null>(null);
@@ -21,7 +29,8 @@ export default function OrderNowButton({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          referenceNote: `Store order: "${title}" — listed at ${formatPriceRange(priceMinCents, priceMaxCents)}.`,
+          referenceNote:
+            `Store order: "${title}" — ${formatPriceRange(priceMinCents, priceMaxCents)}\n\n${description}`,
           category,
           referenceImageUrl: image,
           showcaseId: itemId
