@@ -3,6 +3,7 @@ import { useState } from "react";
 import OverviewTab from "./OverviewTab";
 import OrdersTab from "./OrdersTab";
 import ShowcasesTab from "./ShowcasesTab";
+import StoreTab from "./StoreTab";
 import ReviewsTab from "./ReviewsTab";
 import AnalyticsTab from "./AnalyticsTab";
 
@@ -10,6 +11,7 @@ const TABS = [
   { key: "overview", label: "Overview" },
   { key: "orders", label: "Orders" },
   { key: "showcases", label: "Showcases" },
+  { key: "store", label: "Store" },
   { key: "reviews", label: "Reviews" },
   { key: "analytics", label: "Analytics" }
 ] as const;
@@ -23,7 +25,7 @@ export default function AdminDashboard() {
     <div className="mx-auto max-w-6xl px-6 py-16">
       <h1 className="nyx-heading text-3xl font-bold text-white">Admin</h1>
 
-      <div className="mt-6 flex gap-2 border-b border-nyx-line">
+      <div className="mt-6 flex flex-wrap gap-2 border-b border-nyx-line">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -43,6 +45,7 @@ export default function AdminDashboard() {
         {active === "overview" && <OverviewTab onViewAllOrders={() => setActive("orders")} />}
         {active === "orders" && <OrdersTab />}
         {active === "showcases" && <ShowcasesTab />}
+        {active === "store" && <StoreTab />}
         {active === "reviews" && <ReviewsTab />}
         {active === "analytics" && <AnalyticsTab />}
       </div>

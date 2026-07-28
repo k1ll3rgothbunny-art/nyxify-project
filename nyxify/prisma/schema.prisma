@@ -122,6 +122,17 @@ model Showcase {
   createdAt   DateTime        @default(now())
 }
 
+model StoreItem {
+  id          String          @id @default(cuid())
+  title       String
+  description String
+  priceCents  Int
+  image       String
+  category    ServiceCategory
+  active      Boolean         @default(true)
+  createdAt   DateTime        @default(now())
+}
+
 model Review {
   id          String   @id @default(cuid())
   orderId     String   @unique

@@ -8,14 +8,15 @@ export async function POST(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const { referenceNote, showcaseId } = await req.json();
+  const { referenceNote, showcaseId, category, referenceImageUrl } = await req.json();
   const userId = (session.user as any).id as string;
   const discordId = (session.user as any).discordId as string;
+  const service = category || "OTHER";
 
   const order = await prisma.order.create({
     data: {
       customerId: userId,
-      service: "OTHER",
+      service,
       notes: referenceNote,
       status: "AWAITING_QUOTE"
     }
@@ -24,8 +25,9 @@ export async function POST(req: NextRequest) {
   const ticket = await openOrderTicket({
     discordId,
     orderId: order.id,
-    service: "OTHER",
-    referenceNote: showcaseId ? `${referenceNote} (ref showcase: ${showcaseId})` : referenceNote
+    service,
+    referenceNote: showcaseId ? `${referenceNote} (ref showcase: ${showcaseId})` : referenceNote,
+    referenceImageUrls: referenceImageUrl ? [referenceImageUrl] : undefined
   });
 
   if (ticket?.channelId) {
